@@ -16,6 +16,8 @@ class SlackAlert
 
     protected ?string $icon_emoji = null;
 
+    protected bool $sync = false;
+
     public function to(string $webhookUrlName): self
     {
         $this->webhookUrlName = $webhookUrlName;
@@ -34,6 +36,12 @@ class SlackAlert
     {
         $this->queue = $queue;
 
+        return $this;
+    }
+
+    public function sync(bool $sync = true): self
+    {
+        $this->sync = $sync;
         return $this;
     }
 
@@ -75,11 +83,19 @@ class SlackAlert
             $extraProperties,
         );
 
-        if (! Config::isEnabled() || empty($allProperties['webhookUrl'])) {
+        if (!Config::isEnabled() || empty($allProperties['webhookUrl'])) {
             return;
         }
 
         $job = Config::getJob($allProperties);
+
+
+        if ($this->sync) {
+            dispatch_sync(
+                $job->onQueue($this->queue())
+            );
+            return;
+        }
 
         dispatch(
             $job->onQueue($this->queue())

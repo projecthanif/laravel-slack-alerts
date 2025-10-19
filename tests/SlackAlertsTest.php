@@ -101,8 +101,9 @@ it('can send a message via a queue set in config file ', function (string $queue
 
     Bus::assertDispatched(SendToSlackChannelJob::class);
 })->with([
-    'default', 'my-queue',
-]);
+            'default',
+            'my-queue',
+        ]);
 
 it('can send a message via a queue set at runtime ', function (string $queue) {
     config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
@@ -112,8 +113,9 @@ it('can send a message via a queue set at runtime ', function (string $queue) {
 
     Bus::assertDispatched(SendToSlackChannelJob::class);
 })->with([
-    'default', 'my-queue',
-]);
+            'default',
+            'my-queue',
+        ]);
 
 it('can send a message via a username set at runtime ', function () {
     config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
@@ -137,4 +139,37 @@ it('can send a message via a icon_emoji set at runtime ', function () {
     SlackAlert::withIconEmoji(':heart:')->message('test-data');
 
     Bus::assertDispatched(SendToSlackChannelJob::class);
+});
+
+
+it('can send message sync', function () {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+    SlackAlert::sync()->message('test-data');
+
+    Bus::assertDispatchedSync(SendToSlackChannelJob::class);
+});
+
+
+it('can send a message async when sync is false', function () {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+    SlackAlert::sync(false)->message('test-data');
+
+    Bus::assertDispatched(SendToSlackChannelJob::class);
+    Bus::assertNotDispatchedSync(SendToSlackChannelJob::class);
+});
+
+
+it('works with blocks when sync is enabled', function () {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+    SlackAlert::sync()->blocks([
+        [
+            "type" => "section",
+            "text" => [
+                "type" => "mrkdwn",
+                "text" => "Hello!",
+            ],
+        ],
+    ]);
+
+    Bus::assertDispatchedSync(SendToSlackChannelJob::class);
 });
