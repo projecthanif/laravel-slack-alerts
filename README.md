@@ -35,7 +35,6 @@ composer require spatie/laravel-slack-alerts
 
 You can set a `SLACK_ALERT_WEBHOOK` env variable containing a valid Slack webhook URL. You can learn how to get a webhook URL [in the Slack API docs](https://api.slack.com/messaging/webhooks).
 
-
 Alternatively, you can publish the config file with:
 
 ```bash
@@ -134,9 +133,11 @@ SlackAlert::toChannel('subscription_alerts')->message("You have a new subscriber
 ```
 
 ## Queuing
+
 By default, messages are sent by dispatching the job to the `default` queue.
 
 ### Configuring the queue
+
 In `.env` file, add
 
 ```dotenv
@@ -144,6 +145,7 @@ SLACK_ALERT_QUEUE=queue_name
 ```
 
 ### Changing the queue at runtime
+
 You can queue the job to a different queue than the one defined in config by passing it to the `onQueue` function.
 
 ```php
@@ -155,6 +157,7 @@ SlackAlert::onQueue('some-queue')->message("Some message.");
 ## Formatting
 
 ### Markdown
+
 You can format your messages with Slack's markup. Learn how [in the Slack API docs](https://slack.com/help/articles/202288908-Format-your-messages).
 
 ```php
@@ -172,6 +175,7 @@ SlackAlert::message("<https://spatie.be|This is a link to our homepage>");
 ### Emoji's
 
 You can use the same emoji codes as in Slack. This means custom emoji's are also supported.
+
 ```php
 use Spatie\SlackAlerts\Facades\SlackAlert;
 
@@ -182,6 +186,7 @@ SlackAlert::message(":smile: :custom-code:");
 ### Mentioning
 
 You can use mentions to notify users and groups. Learn how [in the Slack API docs](https://api.slack.com/reference/surfaces/formatting#mentioning-users).
+
 ```php
 use Spatie\SlackAlerts\Facades\SlackAlert;
 
@@ -192,6 +197,7 @@ SlackAlert::message("A message that notifies <@username> and everyone else who i
 ### Icon Change
 
 You can change the icon that appears next to the display-name at the top of the message.
+
 ```php
 use Spatie\SlackAlerts\Facades\SlackAlert;
 
@@ -201,10 +207,35 @@ SlackAlert::withIconURL('https://example.com/tiny-icon.jpg')->message("Some mess
 ### Display Name Change
 
 You can change the Display-Name that appears next to the display-name at the top of the message.
+
 ```php
 use Spatie\SlackAlerts\Facades\SlackAlert;
 
 SlackAlert::withUsername('More Descriptive Name')->message("Some message.");
+```
+
+### Synchronous Dispatch
+
+By default, alerts are sent using jobs. Use the `sync()` method to send alerts synchronously, ensuring notifications are dispatched immediately before continuing execution:
+
+```php
+use Spatie\SlackAlerts\Facades\SlackAlert;
+
+// Send alert immediately
+SlackAlert::sync()
+    ->message("Some message.");
+```
+
+#### Chaining with Other Methods
+
+The `sync()` method works seamlessly with all other SlackAlert methods:
+
+```php
+SlackAlert::toChannel('#critical-alerts')
+    ->sync()
+    ->onQueue('notifications')
+    ->withUsername('Alert Bot')
+    ->message('Database connection failed');
 ```
 
 ### Usage in tests
@@ -219,11 +250,11 @@ In your tests, you should call the `fake` method on the `SlackAlert` facade to s
 
 These methods are available on the fake:
 
-- `expectMessageSentContaining(string $expectedSubstring)`: Expects that at least one message contains the given substring
-- `expectMessagesSent($callable = null)`: Expects that at least one message was sent. Optionally you can pass a callable that will get called for each message sent. Return true in one of the calls to make the expectation pass
-- `expectNoMessagesSent()`: Expects that no messages were sent
-- `expectNumberOfMessagesSent(int $expectedCount)`: Expects that exactly the given number of messages were sent
-- `sentMessages()`: Returns all messages that were sent so you can pass the message to your own expectations
+-   `expectMessageSentContaining(string $expectedSubstring)`: Expects that at least one message contains the given substring
+-   `expectMessagesSent($callable = null)`: Expects that at least one message was sent. Optionally you can pass a callable that will get called for each message sent. Return true in one of the calls to make the expectation pass
+-   `expectNoMessagesSent()`: Expects that no messages were sent
+-   `expectNumberOfMessagesSent(int $expectedCount)`: Expects that exactly the given number of messages were sent
+-   `sentMessages()`: Returns all messages that were sent so you can pass the message to your own expectations
 
 Alternatively, you can make use of the classic mocking approach.
 
@@ -235,7 +266,7 @@ use Spatie\SlackAlerts\Facades\SlackAlert;
 it('will send an alert to Slack', function() {
 
     SlackAlert::shouldReceive('message')->once();
-    
+
     // execute code here that does send a message to Slack
 });
 ```
@@ -249,7 +280,7 @@ use Spatie\SlackAlerts\Facades\SlackAlert;
 
 it('will not send an alert to Slack', function() {
     SlackAlert::shouldReceive('message')->never();
-    
+
     // execute code here that doesn't send a message to Slack
 });
 ```
@@ -274,9 +305,9 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Niels Vanpachtenbeke](https://github.com/Nielsvanpach)
-- [Freek Van der Herten](https://github.com/freekmurze)
-- [All Contributors](../../contributors)
+-   [Niels Vanpachtenbeke](https://github.com/Nielsvanpach)
+-   [Freek Van der Herten](https://github.com/freekmurze)
+-   [All Contributors](../../contributors)
 
 ## License
 
