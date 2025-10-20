@@ -226,18 +226,6 @@ SlackAlert::sync()
     ->message("Some message.");
 ```
 
-#### Chaining with Other Methods
-
-The `sync()` method works seamlessly with all other SlackAlert methods:
-
-```php
-SlackAlert::toChannel('#critical-alerts')
-    ->sync()
-    ->onQueue('notifications')
-    ->withUsername('Alert Bot')
-    ->message('Database connection failed');
-```
-
 ### Usage in tests
 
 The package provides a `SlackAlertFake` that you can use to test your code without actually sending messages to Slack.
